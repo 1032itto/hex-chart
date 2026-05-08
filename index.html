@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>夏期遠征六角チャート</title>
+
+  <style>
+
+    body{
+      margin:0;
+      padding:30px;
+      background:#f1f5f9;
+      font-family:sans-serif;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:auto;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
+    }
+
+    .card{
+      background:white;
+      border-radius:24px;
+      padding:24px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1,h2{
+      margin-top:0;
+    }
+
+    .input-group{
+      margin-bottom:16px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-weight:bold;
+    }
+
+    input,select{
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid #ccc;
+      box-sizing:border-box;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:2fr 1fr;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .center{
+      text-align:center;
+    }
+
+    svg{
+      width:100%;
+      height:auto;
+      overflow:visible;
+    }
+
+    button{
+      margin-top:20px;
+      padding:12px 20px;
+      border:none;
+      border-radius:12px;
+      background:#2563eb;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    button:hover{
+      background:#1d4ed8;
+    }
+
+    @media(max-width:900px){
+
+      .container{
+        grid-template-columns:1fr;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+
+    <h1>
+      夏期遠征六角チャート
+    </h1>
+
+    <div class="input-group">
+
+      <label>
+        名前
+      </label>
+
+      <input
+        type="text"
+        id="nameInput"
+        placeholder="例：山田太郎"
+      >
+
+    </div>
+
+    <div class="input-group">
+
+      <label>
+        チャート基準
+      </label>
+
+      <select id="scaleInput">
+
+        <option value="10">
+          10段階
+        </option>
+
+        <option value="100">
+          100段階
+        </option>
+
+      </select>
+
+    </div>
+
+    <div id="items"></div>
+
+  </div>
+
+  <div class="card center">
+
+    <svg
+      id="radarChart"
+      viewBox="0 0 500 500"
+    ></svg>
+
+    <button id="saveSvgButton">
+        SVG保存
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+const itemsContainer =
+  document.getElementById("items");
+
+const svg =
+  document.getElementById("radarChart");
+
+const size = 500;
+
+const center = 250;
+
+const radius = 170;
+
+const items = [
+
+  {label:"熟成", value:5},
+  {label:"野宿", value:5},
+  {label:"熟成", value:5},
+  {label:"野宿", value:5},
+  {label:"熟成", value:5},
+  {label:"野宿", value:5},
+
+];
+
+function createInputs(){
+
+  itemsContainer.innerHTML = "";
+
+  items.forEach((item,index)=>{
+
+    const row =
+      document.createElement("div");
+
+    row.className = "row";
+
+    const labelInput =
+      document.createElement("input");
+
+    labelInput.value = item.label;
+
+    labelInput.oninput = (e)=>{
+
+      items[index].label =
+        e.target.value;
+
+      drawChart();
+
+    };
+
+    const valueInput =
+      document.createElement("input");
+
+    valueInput.type = "number";
+
+    valueInput.value = item.value;
+
+    valueInput.oninput = (e)=>{
+
+      items[index].value =
+        Number(e.target.value);
+
+      drawChart();
+
+    };
+
+    row.appendChild(labelInput);
+
+    row.appendChild(valueInput);
+
+    itemsContainer.appendChild(row);
+
+  });
+
+}
+
+function drawChart(){
+
+  svg.innerHTML = "";
+
+  const scale =
+    Number(
+      document.getElementById("scaleInput").value
+    );
+
+  const name =
+    document.getElementById("nameInput").value
+    || "名前未入力";
+
+  const title =
+    document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+    );
+
+    title.setAttribute("x", center);
+
+    title.setAttribute("y", 20);
+
+    title.setAttribute(
+    "text-anchor",
+    "middle"
+    );
+
+    title.setAttribute(
+    "font-size",
+    "28"
+    );
+
+    title.setAttribute(
+    "font-weight",
+    "bold"
+    );
+
+    title.textContent = name;
+
+    svg.appendChild(title);
+
+  const axisPoints = [];
+
+  for(let i=0;i<6;i++){
+
+    const angle =
+      -Math.PI/2 +
+      (Math.PI*2*i)/6;
+
+    const x =
+      center +
+      Math.cos(angle)*radius;
+
+    const y =
+      center +
+      Math.sin(angle)*radius;
+
+    axisPoints.push({x,y});
+
+  }
+
+    [0.2,0.4,0.6,0.8,1].forEach((r,index)=>{
+
+    const polygon =
+        document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "polygon"
+        );
+
+    const points =
+        axisPoints.map(p=>{
+
+        const x =
+            center + (p.x-center)*r;
+
+        const y =
+            center + (p.y-center)*r;
+
+        return `${x},${y}`;
+
+        }).join(" ");
+
+    polygon.setAttribute(
+        "points",
+        points
+    );
+
+    polygon.setAttribute(
+        "fill",
+        "none"
+    );
+
+    polygon.setAttribute(
+        "stroke",
+        "#cbd5e1"
+    );
+
+    svg.appendChild(polygon);
+
+    const scale =
+        Number(
+        document.getElementById("scaleInput").value
+        );
+
+    const text =
+        document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+        );
+
+    text.setAttribute("x", center + 5);
+
+    text.setAttribute(
+        "y",
+        center - radius*r + 15
+    );
+
+    text.setAttribute(
+        "font-size",
+        "12"
+    );
+
+    text.setAttribute(
+        "fill",
+        "#64748b"
+    );
+
+    text.textContent =
+        Math.round(scale*r);
+
+    svg.appendChild(text);
+
+    });
+
+  axisPoints.forEach(p=>{
+
+    const line =
+      document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+
+    line.setAttribute("x1",center);
+    line.setAttribute("y1",center);
+
+    line.setAttribute("x2",p.x);
+    line.setAttribute("y2",p.y);
+
+    line.setAttribute(
+      "stroke",
+      "#94a3b8"
+    );
+
+    svg.appendChild(line);
+
+  });
+
+  const radarPolygon =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "polygon"
+    );
+
+  const radarPoints =
+    items.map((item,index)=>{
+
+      const angle =
+        -Math.PI/2 +
+        (Math.PI*2*index)/6;
+
+      const ratio =
+        item.value / scale;
+
+      const x =
+        center +
+        Math.cos(angle) *
+        radius *
+        ratio;
+
+      const y =
+        center +
+        Math.sin(angle) *
+        radius *
+        ratio;
+
+      return `${x},${y}`;
+
+    }).join(" ");
+
+  radarPolygon.setAttribute(
+    "points",
+    radarPoints
+  );
+
+  radarPolygon.setAttribute(
+    "fill",
+    "rgba(59,130,246,0.15)"
+  );
+
+  radarPolygon.setAttribute(
+    "stroke",
+    "#2563eb"
+  );
+
+  radarPolygon.setAttribute(
+    "stroke-width",
+    "3"
+  );
+
+  svg.appendChild(radarPolygon);
+
+  axisPoints.forEach((p,index)=>{
+
+    const label =
+      document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text"
+      );
+
+    label.setAttribute(
+      "x",
+      center + (p.x-center)*1.15
+    );
+
+    label.setAttribute(
+      "y",
+      center + (p.y-center)*1.15
+    );
+
+    label.setAttribute(
+      "text-anchor",
+      "middle"
+    );
+
+    label.textContent =
+      items[index].label;
+
+    svg.appendChild(label);
+
+  });
+
+}
+
+async function saveSVG(){
+
+  const serializer =
+    new XMLSerializer();
+
+  const svgString =
+    serializer.serializeToString(svg);
+
+  const blob =
+    new Blob(
+      [svgString],
+      {
+        type:"image/svg+xml"
+      }
+    );
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const a =
+    document.createElement("a");
+
+  a.href = url;
+
+  a.download = "radar-chart.svg";
+
+  a.click();
+
+}
+
+document
+  .getElementById("saveSvgButton")
+  .addEventListener(
+    "click",
+    saveSVG
+  );
+
+document
+  .getElementById("nameInput")
+  .addEventListener(
+    "input",
+    drawChart
+  );
+
+document
+  .getElementById("scaleInput")
+  .addEventListener(
+    "change",
+    drawChart
+  );
+
+createInputs();
+
+drawChart();
+
+</script>
+
+</body>
+</html>
