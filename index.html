@@ -170,9 +170,9 @@ const svg =
 
 const size = 500;
 
-const center = 250;
+const center = 270;
 
-const radius = 170;
+const radius = 160;
 
 const items = [
 
@@ -257,7 +257,7 @@ function drawChart(){
 
     title.setAttribute("x", center);
 
-    title.setAttribute("y", 20);
+    title.setAttribute("y", 50);
 
     title.setAttribute(
     "text-anchor",
@@ -390,6 +390,11 @@ function drawChart(){
       "#94a3b8"
     );
 
+    line.setAttribute(
+      "stroke-width",
+      "1"
+    );
+
     svg.appendChild(line);
 
   });
@@ -433,7 +438,7 @@ function drawChart(){
 
   radarPolygon.setAttribute(
     "fill",
-    "rgba(59,130,246,0.15)"
+    "rgba(59,130,246,0.1)"
   );
 
   radarPolygon.setAttribute(
@@ -443,7 +448,7 @@ function drawChart(){
 
   radarPolygon.setAttribute(
     "stroke-width",
-    "3"
+    "2"
   );
 
   svg.appendChild(radarPolygon);
@@ -469,6 +474,16 @@ function drawChart(){
     label.setAttribute(
       "text-anchor",
       "middle"
+    );
+
+    label.setAttribute(
+      "font-size",
+      "16"
+    );
+
+    label.setAttribute(
+      "font-weight",
+      "bold"
     );
 
     label.textContent =
